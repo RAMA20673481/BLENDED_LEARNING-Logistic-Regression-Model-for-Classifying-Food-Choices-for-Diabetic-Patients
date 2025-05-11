@@ -23,73 +23,75 @@ To implement a logistic regression model to classify food items for diabetic pat
 ```
 /*
 Program to implement Logistic Regression for classifying food choices based on nutritional information.
-Developed by: G Ramanujam
-RegisterNumber:  212224240129
+Developed by: G.RAMANUJAM
+RegisterNumber: 212224240129
 */
-```python
 import pandas as pd
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
+from sklearn.preprocessing import LabelEncoder,MinMaxScaler
+from sklearn.svm import SVC
 from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import accuracy_score, precision_score, recall_score, classification_report, confusion_matrix
+from sklearn.metrics import accuracy_score,precision_score,recall_score,f1_score,confusion_matrix,classification_report
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-# Load the dataset
-file_path = r'C:\Users\admin\Downloads\food_items_binary.csv'  # Ensure the path is corrected
-data = pd.read_csv(file_path)
+#load dataset 
+df=pd.read_csv("food_items.csv")
+#inspect the dataset
+print("Dataset Overview")
+print(df.head())
+print("\ndatset Info")
+print(df.info())
 
-# Print column names
-print("Column Names in the Dataset:")
-print(data.columns)
+X_raw=df.iloc[:, :-1]
+y_raw=df.iloc[:, -1:]
+X_raw
 
-# Separate features (X) and target (y)
-X = data.drop(columns=['class'])  # Nutritional information as features
-y = data['class']  # Target: 1 (suitable), 0 (not suitable)
+scaler=MinMaxScaler()
+X=scaler.fit_transform(X_raw)
 
-# Split the dataset into training and testing sets
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42, stratify=y)
+label_encoder=LabelEncoder()
+y=label_encoder.fit_transform(y_raw.values.ravel())
+X_train,X_test,y_train,y_test=train_test_split(X,y,test_size=0.2,stratify=y,random_state=123)
 
-# Standardize the features for better performance
-scaler = StandardScaler()
-X_train_scaled = scaler.fit_transform(X_train)
-X_test_scaled = scaler.transform(X_test)
+penalty='l2'
+multi_class='multnomial'
+solver='lbfgs'
+max_iter=1000
 
-# Train the Logistic Regression model
-model = LogisticRegression(random_state=42)
-model.fit(X_train_scaled, y_train)
+model = LogisticRegression(max_iter=2000)  # Increased max_iter for convergence
+model.fit(X_train, y_train)
 
-# Predict the classifications on the test data
-y_pred = model.predict(X_test_scaled)
+# Model Prediction
+y_pred = model.predict(X_test)
 
-# Evaluate the model
+# Model Evaluation
 accuracy = accuracy_score(y_test, y_pred)
-precision = precision_score(y_test, y_pred)
-recall = recall_score(y_test, y_pred)
-evaluation_report = classification_report(y_test, y_pred)
+conf_matrix = confusion_matrix(y_test, y_pred)
+class_report = classification_report(y_test, y_pred)
 
-# Compute confusion matrix
-cm = confusion_matrix(y_test, y_pred)
+print("Model Accuracy:", accuracy)
+print("Confusion Matrix:\n", conf_matrix)
+print("Classification Report:\n", class_report)
 
-# Print results
-print(f"\nAccuracy: {accuracy:.2f}")
-print(f"Precision: {precision:.2f}")
-print(f"Recall: {recall:.2f}")
-print("\nClassification Report:\n", evaluation_report)
-
-# Plot the confusion matrix
-plt.figure(figsize=(8, 6))
-sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=['Not Suitable', 'Suitable'], yticklabels=['Not Suitable', 'Suitable'])
-plt.title('Confusion Matrix')
-plt.xlabel('Predicted')
-plt.ylabel('Actual')
-plt.show() 
-*/
+# Confusion Matrix Plot
+plt.figure(figsize=(5, 4))
+sns.heatmap(conf_matrix, annot=True, fmt='d', cmap='coolwarm', cbar=False, 
+            xticklabels=label_encoder.classes_, yticklabels=label_encoder.classes_)
+plt.title("Confusion Matrix")
+plt.xlabel("Predicted")
+plt.ylabel("Actual")
+plt.show()
 ```
 
 ## Output:
-![Screenshot 2025-05-02 215902](https://github.com/user-attachments/assets/3741f468-7b95-4de8-bd02-5636f534637b)
-![Screenshot 2025-05-02 215925](https://github.com/user-attachments/assets/58c1721c-8b6e-47ad-83c9-56eed8a284f0)
+
+![Screenshot 2025-05-11 191719](https://github.com/user-attachments/assets/bcf3a353-31ba-4671-920f-c8f835751712)
+![Screenshot 2025-05-11 191734](https://github.com/user-attachments/assets/0843d466-a805-4e0e-bae0-1748d5fe549d)
+![Screenshot 2025-05-11 191747](https://github.com/user-attachments/assets/87c65bff-6678-4e2e-b027-143ca13d49cf)
+![Screenshot 2025-05-11 191758](https://github.com/user-attachments/assets/b082091a-9146-4679-8ced-1a0cf85b5a9a)
+
 
 
 
